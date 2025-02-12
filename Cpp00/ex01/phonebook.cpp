@@ -6,59 +6,63 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:14:03 by armohame          #+#    #+#             */
-/*   Updated: 2025/02/12 11:42:59 by armohame         ###   ########.fr       */
+/*   Updated: 2025/02/12 15:00:28 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "phonebook.hpp"
+#include "PhoneBook.hpp"
 #include <cctype>
 
 int isValidPhoneNum(const std::string& phone)
 {
     if(phone.length() != 10)
-    {
-        std::cout << "is not valid" << std::endl;
         return false;
-    }
     for(int i = 0; i < 10; i++)
     {
-        std::cout << "is a valid phone number" << std::endl;
         if(!isdigit(phone[i]))
             return false;
     }
-    std::cout << "is a valid phone number" << std::endl;
     return true;
+}
+void Contact::Display()
+{
+        std::cout << " name : " << name  << std::endl;
+        std::cout << " phone : " << phone << std::endl;
+        std::cout << " secret : " << secret << std::endl;
+}
+    
+void Contact:: WriteContact(void)
+{
+        int i = 0;
+        std::cout << i + 1 << " Enter name : " << std::endl;
+        std::getline(std::cin, name);
+        do {
+            std::cout << i + 1 << " Enter Phone : " << std::endl;
+            std::getline(std::cin, phone);
+                if(std::cin.eof())
+                    break;
+                if(!isValidPhoneNum(phone))
+                    std::cout << red << "Enter a valid phone number" << reset << std::endl;;
+        }while(!isValidPhoneNum(phone));
+        std::cout << i + 1 << " Enter Secret : " << std::endl;
+        std::getline(std::cin, secret);  
+}
+
+void PhoneBook:: AddContact(void)
+{       
+        for(int i = 0; i < 2; i++)
+            _Contact[i].WriteContact();
+        for(int i = 0; i < 2; i++)
+            _Contact[i].Display();
 }
 
 int main()
-{
-    PhoneBook *contact = new PhoneBook[2];
-    
-    for(int i = 0;  i < 2; i++)
-    {
-        std::cout << i + 1 << " Enter name : " << std::endl;
-        std::getline(std::cin, contact[i].name);
-        do {
-            std::cout << i + 1 << " Enter Phone : " << std::endl;
-            std::getline(std::cin, contact[i].phone);
-                if(!std::cin.eof())
-                {
-                    std::cout << std::endl;
-                    break;
-                }
-                if(!isValidPhoneNum(contact[i].phone))
-                {
-                    std::cout << "Enter a valid phone number" << std::endl;
-                }
-        }while(!isValidPhoneNum(contact[i].phone));
-        std::cout << i + 1 << " Enter Secret : " << std::endl;
-        std::getline(std::cin, contact[i].secret);  
-    }
-    for(int i = 0;  i < 2; i++)
-    {
-        contact[i].display();
-    }
-    delete[] contact;
+{   
+    PhoneBook add;
+    // Contact con[2];
+    // int i = 0;
+    add.AddContact();
+    // con[i++].Display();
     return 0;
 }
 
