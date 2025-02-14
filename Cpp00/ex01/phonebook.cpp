@@ -6,12 +6,11 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:14:03 by armohame          #+#    #+#             */
-/*   Updated: 2025/02/12 15:00:28 by armohame         ###   ########.fr       */
+/*   Updated: 2025/02/14 14:57:03 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PhoneBook.hpp"
-#include <cctype>
 
 int isValidPhoneNum(const std::string& phone)
 {
@@ -24,11 +23,26 @@ int isValidPhoneNum(const std::string& phone)
     }
     return true;
 }
-void Contact::Display()
+
+std::string Truncate(std::string str)
 {
-        std::cout << " name : " << name  << std::endl;
-        std::cout << " phone : " << phone << std::endl;
-        std::cout << " secret : " << secret << std::endl;
+    if(str.length() > 10)
+        str = str.substr(0, 9) + ".";
+    return str;
+}
+
+void Contact::Display(int index)
+{
+    if (index == 0)
+    {
+        std::cout << " ______________________________________________ " << std::endl;
+        std::cout << " | index |    name    |   secret   |   phone  | " << std::endl;
+    }
+    std::cout << " |     " << index + 1
+              << " | " << std::setw(10) << Truncate(name)  // Truncate name to 10 chars
+              << " | " << std::setw(10) << Truncate(secret) // Truncate secret to 10 chars
+              << " | " << std::setw(10) << phone.substr(0, 10) << " | "  // Truncate phone to 10 chars
+              << std::endl;
 }
     
 void Contact:: WriteContact(void)
@@ -49,29 +63,16 @@ void Contact:: WriteContact(void)
 }
 
 void PhoneBook:: AddContact(void)
-{       
-        for(int i = 0; i < 2; i++)
-            _Contact[i].WriteContact();
-        for(int i = 0; i < 2; i++)
-            _Contact[i].Display();
+{ 
+        for(index = 0; index < 2; index++)
+            _Contact[index].WriteContact();
+        for(index = 0; index < 2; index++)
+            _Contact[index].Display(index);
 }
 
 int main()
 {   
     PhoneBook add;
-    // Contact con[2];
-    // int i = 0;
     add.AddContact();
-    // con[i++].Display();
     return 0;
 }
-
-// int main()
-// {
-//     PhoneBook p1("Sophie", "010", "Je me touche" );
-//     PhoneBook p2("Bertrand", "011", "Moi aussi" );
-    
-//     std::cin >> "Enter name :";
-//     p1.display();
-//     p2.display();
-// }

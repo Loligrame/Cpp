@@ -6,7 +6,7 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:14:11 by armohame          #+#    #+#             */
-/*   Updated: 2025/02/12 14:44:20 by armohame         ###   ########.fr       */
+/*   Updated: 2025/02/14 13:41:54 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,16 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <cctype>
+#include <iomanip>
 #include "Contact.hpp"
 
-class PhoneBook
-{
+class PhoneBook{
+    private:
+        int index;
+        Contact _Contact[8];
     public:
-    int index;
-    Contact _Contact[8];
-    void AddContact(void);
+        void AddContact(void);
 };
 
 # endif

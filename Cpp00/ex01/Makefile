@@ -1,35 +1,29 @@
 NAME = Phonebook
 
 SRC = phonebook.cpp
-INC = phonebook.hpp
-
-OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJ = $(SRC:.cpp=.o) 
+# INC = Contact.hpp PhoneBook.hpp
 
 CC = c++
-CFLAGS := -Wall -Werror -Wextra -std=c++98 -g -O3 -I./$(INC)
+CFLAGS := -Wall -Werror -Wextra -std=c++98 -g -O3
 
 RM = rm -f
 
 all: $(NAME)
 
-$(OBJ): | $(OBJ_DIR)
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-
-$(NAME): $(OBJ) $(LIBFT_FILE) 
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT_FILE) -o $(NAME) $(MLX_FLAGS)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(dir $@) 
+%.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(LIBFT_FILE):
-	@make -C $(LIBFT_DIR)
+-include $(SRC:.cpp=.d)
+
+%.d: %.cpp
+	$(CC) -M $(CFLAGS) $< > $@
 
 clean:
-	$(RM) -rf $(OBJ_DIR)
+	$(RM) $(OBJ)
 
 fclean: clean
 	$(RM) $(NAME)
