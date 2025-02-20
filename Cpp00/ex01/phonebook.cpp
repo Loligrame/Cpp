@@ -6,7 +6,7 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:14:03 by armohame          #+#    #+#             */
-/*   Updated: 2025/02/14 14:57:03 by armohame         ###   ########.fr       */
+/*   Updated: 2025/02/20 11:23:06 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ int isValidPhoneNum(const std::string& phone)
         if(!isdigit(phone[i]))
             return false;
     }
+    if(!isdigit(phone[0]))
+        return false;
     return true;
 }
 
@@ -33,46 +35,114 @@ std::string Truncate(std::string str)
 
 void Contact::Display(int index)
 {
-    if (index == 0)
-    {
-        std::cout << " ______________________________________________ " << std::endl;
-        std::cout << " | index |    name    |   secret   |   phone  | " << std::endl;
-    }
     std::cout << " |     " << index + 1
-              << " | " << std::setw(10) << Truncate(name)  // Truncate name to 10 chars
-              << " | " << std::setw(10) << Truncate(secret) // Truncate secret to 10 chars
-              << " | " << std::setw(10) << phone.substr(0, 10) << " | "  // Truncate phone to 10 chars
+              << " | " << std::setw(10) << Truncate(first_name)
+              << " | " << std::setw(10) << Truncate(last_name)
+              << " | " << std::setw(10) << Truncate(nickname) << " | " 
               << std::endl;
-}
-    
-void Contact:: WriteContact(void)
-{
-        int i = 0;
-        std::cout << i + 1 << " Enter name : " << std::endl;
-        std::getline(std::cin, name);
-        do {
-            std::cout << i + 1 << " Enter Phone : " << std::endl;
-            std::getline(std::cin, phone);
-                if(std::cin.eof())
-                    break;
-                if(!isValidPhoneNum(phone))
-                    std::cout << red << "Enter a valid phone number" << reset << std::endl;;
-        }while(!isValidPhoneNum(phone));
-        std::cout << i + 1 << " Enter Secret : " << std::endl;
-        std::getline(std::cin, secret);  
+    std::cout << " +-------+------------+------------+------------+" << std::endl;
 }
 
-void PhoneBook:: AddContact(void)
-{ 
-        for(index = 0; index < 2; index++)
-            _Contact[index].WriteContact();
-        for(index = 0; index < 2; index++)
-            _Contact[index].Display(index);
+void PhoneBook::DisplayAll()
+{
+    int i = 0;
+    std::cout << " +-------+------------+------------+------------+" << std::endl;
+    std::cout << " | index | first_name | last_name  |  nickname  | " << std::endl;
+    std::cout << " +-------+------------+------------+------------+" << std::endl;
+    while(i < 8)
+    {
+        _Contact[i].Display(i);
+        i++;
+    }
+}
+
+static std::string getContactline(int index, std::string instruction)
+{
+    
+    std::string input = "";
+    while(!std::cin.eof())
+    {
+        if(std::cin.eof())
+            break;
+        std::cout << index << bold << instruction << reset << std::endl;
+        std::getline(std::cin, input);
+        if(!input.empty())
+            break;
+    }
+    return input;
+}
+    
+void Contact:: WriteContact(int i)
+{
+        this-> first_name = getContactline(i + 1, " Enter your first_name : ");
+        this-> last_name = getContactline(i + 1, " Enter your last_name : ");
+        this-> nickname = getContactline(i + 1, " Enter your nickname : ");
+        do {
+            if(std::cin.eof())
+                break;
+            std::cout << i + 1 << " Enter Phone : " << std::endl;
+            std::getline(std::cin, phone);
+            if(!isValidPhoneNum(phone))
+            std::cout << red <<"Enter a valid phone number" << reset << std::endl;
+        }while(!isValidPhoneNum(phone));
+        this-> secret = getContactline(i + 1, " Enter your darkest secret : ");
+        if(!std::cin.eof())
+            std::cout << green << "Contact added !" << reset << std::endl;
+        return;
+}
+
+void PhoneBook:: AddContact(int index)
+{
+        contact_num = index;
+        _Contact[contact_num].WriteContact(contact_num);
+        return;
+}
+
+void PhoneBook:: SearchContact()
+{
+        std::string index;
+        
+        DisplayAll();
+        std::cout << "Enter an index between 1 and 8 :";
+        std::getline(std::cin, index);
+        if(index.length() == 1 && std::isdigit(index[0]))
+        {
+            int idx = index[0] - '0' - 1;
+            if (idx >= 0 && idx < 8)
+            {
+                std::cout << blue << " First_name : " << reset << _Contact[idx].GetFirstName() << std::endl;
+                std::cout << blue << " Last_name : " << reset << _Contact[idx].GetLastName() << std::endl;
+                std::cout << blue << " Nickname : " << reset << _Contact[idx].GetNickname() << std::endl;
+                std::cout << blue << " Phone : " << reset << _Contact[idx].GetPhone() << std::endl;
+                std::cout << blue << " Darkest secret : "  << reset << _Contact[idx].GetSecret() << std::endl;
+            }
+            else             
+                std::cout << red << "Enter an index between 1 and 8 please" << reset << std::endl;
+        }
 }
 
 int main()
 {   
     PhoneBook add;
-    add.AddContact();
+    std::string input;
+    int index = 0;
+
+    while (!std::cin.eof())
+    {
+        index = index % 8; 
+        std::cout << "Enter a command : ADD, SEARCH or EXIT " << std::endl;
+        std::getline(std::cin, input);          
+        if (std::cin.eof() || input == "EXIT")
+        {
+            std::cout << yellow << "Exiting program..." << reset << std::endl;
+            break;
+        }
+        else if(input == "ADD")
+            add.AddContact(index++);
+        else if(input == "SEARCH")
+            add.SearchContact();
+        else if(!input.empty())
+            std::cout << red << "Wrong command" << reset << std::endl;
+    }
     return 0;
 }

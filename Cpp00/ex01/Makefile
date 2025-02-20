@@ -1,8 +1,7 @@
 NAME = Phonebook
 
 SRC = phonebook.cpp
-OBJ = $(SRC:.cpp=.o) 
-# INC = Contact.hpp PhoneBook.hpp
+OBJ = $(SRC:.cpp=.o)
 
 CC = c++
 CFLAGS := -Wall -Werror -Wextra -std=c++98 -g -O3
@@ -16,8 +15,6 @@ $(NAME): $(OBJ)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
-
--include $(SRC:.cpp=.d)
 
 %.d: %.cpp
 	$(CC) -M $(CFLAGS) $< > $@
