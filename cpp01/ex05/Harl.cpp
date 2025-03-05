@@ -6,7 +6,7 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 14:36:33 by armohame          #+#    #+#             */
-/*   Updated: 2025/03/04 10:04:22 by armohame         ###   ########.fr       */
+/*   Updated: 2025/03/04 10:56:12 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ void Harl:: info( void )
     std::cout << std::endl << blue << "INFO :" << reset << std::endl;
     std::cout << "I cannot believe adding extra bacon costs more money. You didn’t put enough bacon in my burger! If you did, I wouldn’t be asking for more!" << std::endl;
 }
-
 
 void Harl:: complain( std::string level )
 {
