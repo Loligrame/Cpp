@@ -6,11 +6,12 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 12:51:35 by armohame          #+#    #+#             */
-/*   Updated: 2025/03/04 12:52:48 by armohame         ###   ########.fr       */
+/*   Updated: 2025/03/06 11:51:54 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
+#include "Fixed.hpp"
+
 
 int main( void ) 
 {
