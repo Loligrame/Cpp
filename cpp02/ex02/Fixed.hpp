@@ -6,7 +6,7 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 12:53:13 by armohame          #+#    #+#             */
-/*   Updated: 2025/03/07 15:14:31 by armohame         ###   ########.fr       */
+/*   Updated: 2025/03/10 10:27:01 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,12 @@
 
 #include <iostream>
 #include <cmath>
+#define red "\033[1m\033[31m"
+#define bold "\033[1m"
+#define green "\033[1m\033[32m"
+#define yellow "\033[1m\033[33m"
+#define blue "\033[1m\033[34m"
+#define reset "\033[0m"
 
 class Fixed{
     private :
@@ -29,7 +35,7 @@ class Fixed{
         ~Fixed();
         
         int     getRawBits( void ) const;
-        void    setRawBits( int const raw );
+        void    setRawBits( const int raw );
         float   toFloat( void ) const;
         int     toInt( void ) const;
 

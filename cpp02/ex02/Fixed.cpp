@@ -6,7 +6,7 @@
 /*   By: armohame <armohame@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 12:53:18 by armohame          #+#    #+#             */
-/*   Updated: 2025/03/07 15:11:37 by armohame         ###   ########.fr       */
+/*   Updated: 2025/03/10 10:09:27 by armohame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int Fixed:: getRawBits( void ) const
    return this->rawValue_;
 }
 
-void Fixed:: setRawBits( int const raw )
+void Fixed:: setRawBits( const int  raw )
 {
 //    std::cout << "setRawBits member function called" << std::endl;
    this->rawValue_ = raw;
@@ -135,19 +135,20 @@ Fixed Fixed:: operator-(const Fixed &obj) const
     return result;
 }
 
-Fixed Fixed:: operator*(const Fixed &obj) const
+Fixed Fixed::operator*(const Fixed &obj) const
 {
-    Fixed result;
-    
-    result.setRawBits(this->rawValue_ * obj.getRawBits());
-    return result;
+	Fixed	result;
+	int		newRaw = this->rawValue_ * obj.getRawBits();
+
+	result.setRawBits(newRaw / (1 << this->fractionalBits_));
+	return (result);
 }
 
-Fixed Fixed:: operator/(const Fixed &obj) const
+Fixed Fixed::operator/(const Fixed &obj) const
 {
     Fixed result;
-    
-    result.setRawBits(this->rawValue_ / obj.getRawBits());
+    int newRaw = (this->rawValue_ * (1 << this->fractionalBits_)) / obj.getRawBits();
+    result.setRawBits(newRaw);
     return result;
 }
 
