@@ -2,16 +2,7 @@
 
 ScalarConverter:: ~ScalarConverter(){}
 
-void ScalarConverter:: convert(const std::string &literal){
-        if(isInt(literal))
-            intConvert(literal);
-        if(isChar(literal))
-            charConvert(literal);
-        else
-            std::cout << "sdf\n";
-}
-
-bool isInt(const std::string &literal){
+static bool isInt(const std::string &literal){
     size_t i = 0;
     if(literal.empty())
         return false;
@@ -27,7 +18,7 @@ bool isInt(const std::string &literal){
     return true;
 }
 
-bool isFloat(const std::string &literal){
+static bool isFloat(const std::string &literal){
     if(literal.empty())
         return false;
     size_t i = 0;
@@ -48,13 +39,13 @@ bool isFloat(const std::string &literal){
                 return false;
             has_dot = true;
         }
-        if(literal[i] == 'f' && literal[i + 1] == 0)
+        if(literal[i] == 'f' && i == literal.size() - 1)
             return true;
     }
     return false;
 }
 
-bool  isDouble(const std::string &literal){
+static bool  isDouble(const std::string &literal){
     if(literal.empty())
     return false;
     size_t i = 0;
@@ -67,65 +58,156 @@ bool  isDouble(const std::string &literal){
     {
         if(isdigit(literal[i]))
             continue;
-        if(literal[i] == '.')
+        else if(literal[i] == '.')
         {   
-            if(i + 1 >= literal.size() ||!isdigit(literal[i + 1]))
-                return false;
             if(has_dot)
                 return false;
-            has_dot = true;
-            i++;
-        }
-        if(!isdigit(literal[i]))
+            if(i + 1 >= literal.size() ||!isdigit(literal[i + 1]))
                 return false;
+            has_dot = true;
+            continue;
+        }
+        else
+            return false;
     }
     return has_dot;
 }
 
-bool  isChar(const std::string &literal){
-    size_t i = 0;
-    if(literal.size() == 3 && literal[i] == '\'' && literal[literal.size() - 1] == '\'')
-        return isprint(literal[1]);
+static bool  isChar(const std::string &literal){
+    if(literal.length() == 1 && isprint(literal[0]) && !isdigit(literal[0]))
+        return true;
     return false;
 }
 
-bool  isPseudoLiteral(const std::string &literal){
-    std::string pseudo[] = {"nan", "+inf", "-inf", "nanf", "+inff", "-inff"};
-    for(size_t i = 0;i < 6; ++i)
-    {
-        if(literal == pseudo[i])
-            return true;
+static void		nanConvert() {
+	std::cout << "char: impossible" << std::endl;
+	std::cout << "int: impossible" << std::endl;
+	std::cout << "double: nan" << std::endl;
+	std::cout << "float: nanf" << std::endl;
+}
+
+static void		neginfConvert() {
+	std::cout << "char: impossible" << std::endl;
+	std::cout << "int: impossible" << std::endl;
+	std::cout << "double: -inf" << std::endl;
+	std::cout << "float: -inff" << std::endl;
+}
+
+static void		infConvert() {
+	std::cout << "char: impossible" << std::endl;
+	std::cout << "int: impossible" << std::endl;
+	std::cout << "double: inf" << std::endl;
+	std::cout << "float: inff" << std::endl;
+}
+
+static void doubleConvert(const std::string &literal){
+    char* end;
+    errno = 0;
+    double lit =  strtod(literal.c_str(), &end);
+    if (errno == ERANGE || std::isinf(lit) || lit > DBL_MAX || lit < -DBL_MAX) {
+        std::cout << "Double : Overflow détecté ✅" << std::endl;
+        return;
     }
-    return false;
+    if(lit < 0 || lit > 127)
+        std::cout << "This is not a char" << std::endl;
+    else if(!isprint(lit))
+        std::cout << "This char is not printable" << std::endl;
+    else
+        std::cout << "Char : " << static_cast<char>(lit) << std::endl;
+    if (lit <= INT_MAX && lit >= INT_MIN)
+        std::cout << "Int : " << static_cast<int>(lit) << std::endl;
+    else
+        std::cout << "Int : Overflow" << std::endl;
+    std::cout << "Double : " << std::fixed << std::setprecision(1) << lit << std::endl;
+    float f = static_cast<float>(lit);
+    if (std::isinf(f))
+        std::cout << "Float : Overflow" << std::endl;
+    else
+        std::cout << "Float : " << std::fixed << std::setprecision(1) << static_cast<float>(lit) << "f"<< std::endl;
 }
 
-void intConvert(const std::string &literal){
+static void floatConvert(const std::string &literal){
+    char* end;
+    errno = 0;
+    float lit =  strtof(literal.c_str(), &end);
+    if (errno == ERANGE) {
+        std::cout << "Double : Overflow détecté ✅" << std::endl;
+        return;
+    }
+    if(lit < 0 || lit > 127)
+        std::cout << "This is not a char" << std::endl;
+    else if(!isprint(lit))
+        std::cout << "This char is not printable" << std::endl;
+    else
+        std::cout << "Char : " << static_cast<char>(lit) << std::endl;
+    if (static_cast<int>(lit) < INT_MAX && static_cast<int>(lit) > INT_MIN)
+        std::cout << "Int : " << static_cast<int>(lit) << std::endl;
+    else
+        std::cout << "Int :  Overflow" << std::endl;
+    std::cout << "Double : " << std::fixed << std::setprecision(1) << static_cast<double>(lit) << std::endl;
+    std::cout << "Float : " << std::fixed << std::setprecision(1) << lit << "f"<< std::endl;
+}
+
+static void intConvert(const std::string &literal){
     char* end;
     errno = 0;
     long lit =  strtol(literal.c_str(), &end, 10);
     if (errno == ERANGE)
+    {
         std::cout << "Overflow détecté ✅" << std::endl;
+        return;
+    }
     if(lit < 0 || lit > 127)
         std::cout << "This is not a char" << std::endl;
-    if(!isprint(literal))
+    else if(!isprint(lit))
         std::cout << "This char is not printable" << std::endl;
-    std::cout << lit << std::endl;
-    std::cout << static_cast<char>(lit) << std::endl;
-    std::cout << std::fixed << std::setprecision(1) << static_cast<double>(lit) << std::endl;
-    std::cout << std::fixed << std::setprecision(1) << static_cast<float>(lit) << "f"<< std::endl;
-
+    else
+        std::cout << "Char : " << static_cast<char>(lit) << std::endl;
+    if (lit < INT_MAX && lit > INT_MIN)
+        std::cout << "Int : " << static_cast<int>(lit) << std::endl;
+    else
+        std::cout << "Int :  Overflow" << std::endl;
+    std::cout << "Double : " << std::fixed << std::setprecision(1) << static_cast<double>(lit) << std::endl;
+    if (static_cast<float>(lit) > FLT_MAX || static_cast<float>(lit) < -FLT_MAX)
+        std::cout << "Is Float: Overflow" << std::endl;
+    else
+        std::cout << "Float : " << std::fixed << std::setprecision(1) << static_cast<float>(lit) << "f"<< std::endl;
 }
 
-void charConvert(const std::string &literal){
-    int lit = atoi(literal[1]);
-    std::cout << lit << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << static_cast<double>(lit) << std::endl;
-    std::cout << std::fixed << std::setprecision(2) << static_cast<float>(lit) << "f"<< std::endl;
+static void charConvert(const std::string &literal){
+    char c = literal[0];
+    if(c < 0 || c > 127)
+        std::cout << "This is not a char" << std::endl;
+    else if(!isprint(c))
+        std::cout << "This char is not printable" << std::endl;
+    else
+        std::cout << "Char : " << c << std::endl;
+    if (static_cast<int>(c) < INT_MAX && static_cast<int>(c) > INT_MIN)
+        std::cout << "Int : " << static_cast<int>(c) << std::endl;
+    else
+        std::cout << "Int :  Overflow" << std::endl;
+    std::cout << "Double : " << std::fixed << std::setprecision(1) << static_cast<double>(c) << std::endl;
+    if (static_cast<float>(c) > FLT_MAX || static_cast<float>(c) < -FLT_MAX)
+        std::cout << "Is Float: Overflow" << std::endl;
+    else
+        std::cout << "Float : " << std::fixed << std::setprecision(1) << static_cast<float>(c) << "f"<< std::endl;
 }
 
-// static void		minInfConvert() {
-// 	std::cout << BOLD_RED << "char: impossible" << RESET << std::endl;
-// 	std::cout << BOLD_GREEN << "int: impossible" << RESET << std::endl;
-// 	std::cout << BOLD_YELLOW << "float: " << NegativeInfinityFloat << RESET << std::endl;
-// 	std::cout << BOLD_MAGENTA << "double: " << NegativeInfinity << RESET << std::endl;
-// }
+void ScalarConverter:: convert(const std::string &literal){
+        if(isInt(literal))
+            intConvert(literal);
+        else if(isChar(literal))
+            charConvert(literal);
+        else if(isFloat(literal))
+            floatConvert(literal);
+        else if(isDouble(literal))
+            doubleConvert(literal);
+        else if (literal == "nan" || literal == "nanf") 
+            nanConvert();
+        else if (literal == "-inf" || literal == "-inff") 
+            neginfConvert();
+        else if (literal == "+inf" || literal == "+inff") 
+            infConvert();
+        else
+            std::cerr << "Not a valid value" << std::endl;
+}

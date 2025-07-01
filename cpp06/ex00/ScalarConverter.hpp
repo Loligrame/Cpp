@@ -6,6 +6,9 @@
 #include <iomanip>
 #include <cerrno>
 #include <climits>
+#include <cfloat>
+#include <cstdlib>
+#include <cmath>
 
 class ScalarConverter{
     private :
@@ -16,10 +19,3 @@ class ScalarConverter{
         ~ScalarConverter();
         static void convert(const std::string &literal);
 };
-bool isDouble(const std::string &literal);
-bool isInt(const std::string &literal);
-bool isFloat(const std::string &literal);
-bool isChar(const std::string &literal);
-bool isPseudoLiteral(const std::string &literal);
-void intConvert(const std::string &literal);
-void charConvert(const std::string &literal);
