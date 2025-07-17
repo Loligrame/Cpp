@@ -1,6 +1,6 @@
 NAME = Templates
 
-SRC = main.cpp
+SRC = Span.cpp main.cpp
 OBJ_DIR =  obj/
 OBJ = $(SRC:.cpp=.o)
 OBJ := $(addprefix $(OBJ_DIR)/, $(OBJ))
