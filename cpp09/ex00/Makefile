@@ -1,6 +1,6 @@
-NAME = Span
+NAME = btc
 
-SRC = Span.cpp main.cpp
+SRC = main.cpp
 OBJ_DIR =  obj/
 OBJ = $(SRC:.cpp=.o)
 OBJ := $(addprefix $(OBJ_DIR)/, $(OBJ))

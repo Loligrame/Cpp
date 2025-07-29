@@ -1,6 +1,5 @@
 #include "easyfind.hpp"
 
-
 int main(){
     std::vector<int> vec;
     vec.push_back(1);
@@ -8,10 +7,10 @@ int main(){
     vec.push_back(45);
     vec.push_back(8);
 
-
-    if(easyfind(vec, 8) == -1)
+    int nb = easyfind(vec, 45);
+    if(nb == -1)
         std::cerr << "Number not present\n";
     else
-        std::cout << "Number is present at index : " << easyfind(vec, 8) << std::endl; 
+        std::cout << "Number is present at index : " << nb << std::endl; 
     return 0;
 }
