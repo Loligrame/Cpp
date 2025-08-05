@@ -1,130 +1,114 @@
 #include "BitcoinExchange.hpp"
 
-
-BitcoinExchange:: BitcoinExchange() : _yearData(0), _monthData(0), _dayData(0),  
-_yearInput(0), _monthInput(0), _dayInput(0), _value(0), _quantity(0){}
+BitcoinExchange:: BitcoinExchange() {}
 
 BitcoinExchange:: BitcoinExchange (const BitcoinExchange &obj){
     if(this != &obj){
-        this->_yearData = obj._yearData;
-        this->_monthData = obj._monthData;
-        this->_dayData = obj._dayData;
-        this->_value = obj._value;
-        this->_yearInput = obj._yearInput;
-        this->_monthInput = obj._monthInput;
-        this->_dayInput = obj._dayInput;
-        this->_quantity = obj._quantity;
     }
 }
 
 BitcoinExchange&  BitcoinExchange:: operator=(const BitcoinExchange &obj){
     if(this != &obj){
-        this->_yearData = obj._yearData;
-        this->_monthData = obj._monthData;
-        this->_dayData = obj._dayData;
-        this->_value = obj._value;
-        this->_yearInput = obj._yearInput;
-        this->_monthInput = obj._monthInput;
-        this->_dayInput = obj._dayInput;
-        this->_quantity = obj._quantity;
     }
     return *this;
 }
 
 BitcoinExchange:: ~BitcoinExchange(){}
 
+static bool isValidDate(std::string DateLine){
+  if(DateLine.length() != 10)
+    return false;
+  if(DateLine[4] != '-' || DateLine[7] != '-' )
+    return false;
+  for(size_t i = 0; i < 10; ++i){
+    if(DateLine[4] == '-' && DateLine[7] == '-' )
+      continue;
+    if(!std::isdigit(DateLine[i]))
+          return false;
+  }
+  int year = std::atoi(DateLine.substr(0, 4).c_str());
+  int month = std::atoi(DateLine.substr(5, 2).c_str());
+  int day = std::atoi(DateLine.substr(8, 2).c_str());
+  if (year < 2008 || year > 2025)
+      return false;
+  if (month < 1 || month > 12)
+      return false;
+  if (day < 1 || day > 31)
+      return false;
+  return true;
+}
+
 void BitcoinExchange:: getLineData(std::ifstream &myfile) {
   std::string line;
   while(std::getline(myfile, line)){
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    
-    char sep_1 = 0;
-    char sep_2 = 0;
-    char comma = 0;
-    
-    std::istringstream DataLine(line);
+    std::istringstream ss(line);
+    std::string DateData;
+    std::string ValueLine;
+    std::getline(ss, DateData, ',');
     try{
-      DataLine >> year >> sep_1 >> month >> sep_2 >> day;
-      if(DataLine.fail() || sep_1 != '-' || sep_2 != '-')
-          throw std::invalid_argument("Invalid date format: expected YYYY-MM-DD\n");
-      if(year < 2008 || year > 2025)
-        throw std::invalid_argument("Invalid year, bitcoin did not exist at that time\n");
-      if(month < 1 || month > 12)
-        throw std::invalid_argument("Invalid month\n");
-      if(day < 1 || day > 31)
-        throw std::invalid_argument("Invalid day\n");
+      if(!isValidDate(DateData))
+        throw std::invalid_argument("Invalid date, expected format : YYYY-MM-DD\n");
     }
     catch(const std::exception &e){
       std::cerr << e.what() << std::endl;
     }
-    DataLine >> comma;
-    std::string str_value;
-    std::getline(DataLine , str_value);
-    float value = strtof(str_value.c_str(), NULL);
+    std::getline(ss, ValueLine);
+    float value = strtof(ValueLine.c_str(), NULL);
     try{
       if(value < 0)
-        throw std::invalid_argument("Not a valid value number\n");
+        throw std::invalid_argument("Invalid value\n");
     }
     catch(const std::exception &e){
       std::cerr << e.what() << std::endl;
     }
-    std::cout << year << sep_1 << month << sep_2 << day << 
-    comma << value << std::endl;
-    this->_yearData = year;
-    this->_monthData = month;
-    this->_dayData = day;
-    this->_value = value;
+    database.insert(std::make_pair(DateData, value));
   }
+}
+
+void BitcoinExchange:: valueCalculator(std::string DateInput, float Quantity){
+  
+  std::map<std::string, float>::iterator it = database.lower_bound(DateInput);
+  if(it == database.begin())
+    std::cerr << "Erreur : aucune date avant " << DateInput << " dans la database.\n";
+  else
+    --it;
+  float money = it->second * Quantity;
+  std::cout << DateInput << "  => " << Quantity << " = "<< money << "\n\n";
+}
+
+bool isHeader(const std::string& line) {
+    return line.find("date") != std::string::npos;
 }
 
 void BitcoinExchange:: getLineInput(std::ifstream &myinput) {
   std::string line;
+  int line_count = 0;
   while(std::getline(myinput, line)){
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    
-    char sep_1 = 0;
-    char sep_2 = 0;
-    char comma = 0;
-    
-    std::istringstream InputLine(line);
+    std::istringstream ss(line);
+    std::string DateInput;
+    float Quantity;
+    char pipe = '\0';
+    ss >> DateInput >> pipe >> Quantity;
     try{
-      InputLine >> year >> sep_1 >> month >> sep_2 >> day;
-      if(InputLine.fail() || sep_1 != '-' || sep_2 != '-')
-          throw std::invalid_argument("Invalid date format: expected YYYY-MM-DD\n");
-      if(year < 2008 || year > 2025)
-        throw std::invalid_argument("Invalid year, bitcoin did not exist at that time\n");
-      if(month < 1 || month > 12)
-        throw std::invalid_argument("Invalid month\n");
-      if(day < 1 || day > 31)
-        throw std::invalid_argument("Invalid day\n");
+      if(line_count == 0 && !isHeader(line))
+        std::getline(myinput, line);
+      else if(!isValidDate(DateInput))
+        throw std::invalid_argument("Invalid date, expected format : YYYY-MM-DD\n");
     }
     catch(const std::exception &e){
       std::cerr << e.what() << std::endl;
     }
-    InputLine >> comma;
-    std::string str_quantity;
-    std::getline(InputLine , str_quantity);
-    float quantity = strtof(str_quantity.c_str(), NULL);
+    // std::cout << "Quantity : " << Quantity << std::endl ;
+    if(pipe != '|')
+      throw std::invalid_argument("Invalid line\n");
     try{
-      if(quantity < 0 || quantity > 1000)
-        throw std::invalid_argument("Not a valid quantity number\n");
+      if(Quantity < 0 || Quantity > 1000  )
+        throw std::invalid_argument("Invalid Quantity\n");
     }
     catch(const std::exception &e){
       std::cerr << e.what() << std::endl;
     }
-    std::cout << year << sep_1 << month << sep_2 << day << 
-    comma << quantity << std::endl;
-    this->_yearInput = year;
-    this->_monthInput = month;
-    this->_dayInput = day;
-    this->_quantity = quantity;
+    valueCalculator(DateInput, Quantity);
+    line_count++;
   }
 }
-
-// bool  BitcoinExchange:: isClosestDate(){
-
-// }

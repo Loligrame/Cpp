@@ -5,23 +5,18 @@
 #include <stdexcept>
 #include <sstream>
 #include <string>
+#include <map>
 #include <cstdlib>
 
 class BitcoinExchange{
     private :
-        int _yearData;
-        int _monthData;
-        int _dayData;
-        int _yearInput;
-        int _monthInput;
-        int _dayInput;
-        int _value;
-        int _quantity;
+        std::map<std::string, float> database;
     public :
         BitcoinExchange();
         BitcoinExchange(const BitcoinExchange &obj);
         BitcoinExchange &operator=(const BitcoinExchange &obj);
         ~BitcoinExchange();
+        void valueCalculator(std::string DateInput, float value);
         void getLineData(std::ifstream &myfile);
         void getLineInput(std::ifstream &myinput);
 };
