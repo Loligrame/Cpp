@@ -1,28 +1,32 @@
-#include "MutantStack.hpp"
+#include "PmergeMe.hpp"
 
-int main(){
-    MutantStack<int> mstack;
-    mstack.push(5);
-    mstack.push(17);
-    std::cout << mstack.top() << std::endl;
-    mstack.pop();
-    std::cout << mstack.size() << std::endl;
-    mstack.push(3);
-    mstack.push(5);
-    mstack.push(737);
-
-    mstack.push(0);
-    //begin correspond au fond de la pile
-    MutantStack<int>::iterator it = mstack.begin();
-    
-    //end correspond au haut de la pile
-    MutantStack<int>::iterator ite = mstack.end();
-
-    while (it != ite)
-    {
-        std::cout << *it << std::endl;
-        ++it;
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cerr << RED << "./PmergeMe Only positive integers" << RESET << std::endl;
+        return 1;
     }
-    std::stack<int> s(mstack);
-    return 0;
+
+    PmergeMe sorter;
+
+    try {
+        sorter.checkInput(argc, argv);
+        sorter.fillContainers(argc, argv);
+        sorter.printBefore();
+
+        double start = getTime();
+        vector_t sortedVec = sorter.mergeInsertionSort(sorter.getVector());
+        sorter.setVector(sortedVec);
+        sorter.printAfter();
+        sorter.printTime(VECTOR, getTime() - start);
+
+        start = getTime();
+        deque_t sorteddeque = sorter.mergeInsertionSort(sorter.getDeque());
+        sorter.setDeque(sorteddeque);
+        sorter.printTime(DEQUE, getTime() - start);
+
+        return 0;
+    } catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+    return 1;
 }

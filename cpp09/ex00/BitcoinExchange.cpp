@@ -3,13 +3,13 @@
 BitcoinExchange:: BitcoinExchange() {}
 
 BitcoinExchange:: BitcoinExchange (const BitcoinExchange &obj){
-    if(this != &obj){
-    }
+    if(this != &obj)
+      this->database = obj.database;
 }
 
 BitcoinExchange&  BitcoinExchange:: operator=(const BitcoinExchange &obj){
-    if(this != &obj){
-    }
+    if(this != &obj)
+      this->database = obj.database;
     return *this;
 }
 
@@ -38,29 +38,25 @@ static bool isValidDate(std::string DateLine){
   return true;
 }
 
+bool isHeader(const std::string& line) {
+    return line.find("date") != std::string::npos;
+}
+
 void BitcoinExchange:: getLineData(std::ifstream &myfile) {
   std::string line;
   while(std::getline(myfile, line)){
+    if(isHeader(line))
+      continue;
     std::istringstream ss(line);
     std::string DateData;
     std::string ValueLine;
     std::getline(ss, DateData, ',');
-    try{
       if(!isValidDate(DateData))
-        throw std::invalid_argument("Invalid date, expected format : YYYY-MM-DD\n");
-    }
-    catch(const std::exception &e){
-      std::cerr << e.what() << std::endl;
-    }
+        throw std::invalid_argument("Error: Invalid Data date, expected format YYYY-MM-DD\n");
     std::getline(ss, ValueLine);
     float value = strtof(ValueLine.c_str(), NULL);
-    try{
       if(value < 0)
-        throw std::invalid_argument("Invalid value\n");
-    }
-    catch(const std::exception &e){
-      std::cerr << e.what() << std::endl;
-    }
+        throw std::invalid_argument("Data Error: not a positive number.\n");
     database.insert(std::make_pair(DateData, value));
   }
 }
@@ -69,46 +65,44 @@ void BitcoinExchange:: valueCalculator(std::string DateInput, float Quantity){
   
   std::map<std::string, float>::iterator it = database.lower_bound(DateInput);
   if(it == database.begin())
-    std::cerr << "Erreur : aucune date avant " << DateInput << " dans la database.\n";
+    std::cerr << "Error: no date before " << DateInput << " in the database.\n";
   else
     --it;
   float money = it->second * Quantity;
-  std::cout << DateInput << "  => " << Quantity << " = "<< money << "\n\n";
+  std::cout << DateInput << "  => " << std::fixed << std::setprecision(2) << Quantity << " = "<< money << "\n";
 }
 
-bool isHeader(const std::string& line) {
-    return line.find("date") != std::string::npos;
+static bool isValidLine(const std::string& date, char pipe, float quantity) {
+  if (!isValidDate(date)) {
+    std::cerr << "Error: Invalid date\n";
+    return false;
+  }
+  if (pipe != '|') {
+    std::cerr << "Error: invalid separator\n";
+    return false;
+  }
+  if (quantity > 1000) {
+    std::cerr << "Error: too large a number.\n";
+    return false;
+  }
+  if (quantity < 0) {
+    std::cerr << "Error: not a positive number.\n";
+    return false;
+  }
+  return true;
 }
 
 void BitcoinExchange:: getLineInput(std::ifstream &myinput) {
   std::string line;
-  int line_count = 0;
   while(std::getline(myinput, line)){
+    if(isHeader(line))
+      continue;
     std::istringstream ss(line);
     std::string DateInput;
     float Quantity;
     char pipe = '\0';
     ss >> DateInput >> pipe >> Quantity;
-    try{
-      if(line_count == 0 && !isHeader(line))
-        std::getline(myinput, line);
-      else if(!isValidDate(DateInput))
-        throw std::invalid_argument("Invalid date, expected format : YYYY-MM-DD\n");
-    }
-    catch(const std::exception &e){
-      std::cerr << e.what() << std::endl;
-    }
-    // std::cout << "Quantity : " << Quantity << std::endl ;
-    if(pipe != '|')
-      throw std::invalid_argument("Invalid line\n");
-    try{
-      if(Quantity < 0 || Quantity > 1000  )
-        throw std::invalid_argument("Invalid Quantity\n");
-    }
-    catch(const std::exception &e){
-      std::cerr << e.what() << std::endl;
-    }
-    valueCalculator(DateInput, Quantity);
-    line_count++;
+    if(isValidLine(DateInput, pipe, Quantity))
+      valueCalculator(DateInput, Quantity);
   }
 }
